@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage("Code") {
             steps {
-                git url: "https://github.com/LondheShubham153/node-todo-cicd.git", branch: "master"
+                git url: "https://github.com/neamulkabiremon/node-todo-cicd.git", branch: "master"
                 echo "Code Cloned Successfully"
             }
         }
@@ -44,10 +44,12 @@ pipeline {
         stage("Push to Private Docker Hub Repo") {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'DockerCreds', variable: 'dockerToken')]) {
-                        sh "echo ${env.dockerToken} | docker login -u neamulkabiremon --password-stdin"
-                        sh "docker tag node-app-batch-6:latest neamulkabiremon/node-app-batch-6:latest"
-                        sh "docker push neamulkabiremon/node-app-batch-6:latest"
+                    withCredentials([usernamePassword(credentialsId: 'DockerHubCreds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        def dockerUsername = env.DOCKER_USERNAME
+                        def dockerPassword = env.DOCKER_PASSWORD
+                        sh "echo ${dockerPassword} | docker login -u ${dockerUsername} --password-stdin"
+                        sh "docker tag node-app-batch-6:latest ${dockerUsername}/node-app-batch-6:latest"
+                        sh "docker push ${dockerUsername}/node-app-batch-6:latest"
                     }
                 }
             }
